@@ -27,6 +27,8 @@ export default function ProductsView({
   products,
   categories,
   providers,
+  branches,
+  warehouses,
   isLoading,
   onRefresh,
 }) {
@@ -34,6 +36,8 @@ export default function ProductsView({
   const [search, setSearch] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('')
   const [providerFilter, setProviderFilter] = useState('')
+  const [branchFilter, setBranchFilter] = useState('')
+  const [warehouseFilter, setWarehouseFilter] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [stockFilter, setStockFilter] = useState('all')
   const [editing, setEditing] = useState(null)
@@ -57,6 +61,10 @@ export default function ProductsView({
         !categoryFilter || String(product.categoriaId) === categoryFilter
       const matchesProvider =
         !providerFilter || String(product.proveedorId) === providerFilter
+      const matchesBranch =
+        !branchFilter || String(product.sucursalId) === branchFilter
+      const matchesWarehouse =
+        !warehouseFilter || String(product.almacenId) === warehouseFilter
       const matchesStatus =
         statusFilter === 'all' ||
         (statusFilter === 'active' ? product.activo : !product.activo)
@@ -70,6 +78,8 @@ export default function ProductsView({
         matchesSearch &&
         matchesCategory &&
         matchesProvider &&
+        matchesBranch &&
+        matchesWarehouse &&
         matchesStatus &&
         matchesStock
       )
@@ -79,6 +89,8 @@ export default function ProductsView({
     debouncedSearch,
     categoryFilter,
     providerFilter,
+    branchFilter,
+    warehouseFilter,
     statusFilter,
     stockFilter,
   ])
@@ -87,6 +99,8 @@ export default function ProductsView({
     search.trim() !== '' ||
     categoryFilter !== '' ||
     providerFilter !== '' ||
+    branchFilter !== '' ||
+    warehouseFilter !== '' ||
     statusFilter !== 'all' ||
     stockFilter !== 'all'
 
@@ -94,9 +108,19 @@ export default function ProductsView({
     setSearch('')
     setCategoryFilter('')
     setProviderFilter('')
+    setBranchFilter('')
+    setWarehouseFilter('')
     setStatusFilter('all')
     setStockFilter('all')
   }
+
+  const warehouseOptions = useMemo(
+    () =>
+      warehouses.filter(
+        (warehouse) => !branchFilter || String(warehouse.sucursalId) === branchFilter,
+      ),
+    [warehouses, branchFilter],
+  )
 
   const handleSave = async (payload) => {
     if (editing === 'new') {
@@ -134,6 +158,16 @@ export default function ProductsView({
   const providerName = (product) =>
     product.proveedor?.nombre ??
     providers.find((provider) => provider.id === product.proveedorId)?.nombre ??
+    '—'
+
+  const branchName = (product) =>
+    product.sucursal?.nombre ??
+    branches.find((branch) => branch.id === product.sucursalId)?.nombre ??
+    '—'
+
+  const warehouseName = (product) =>
+    product.almacen?.nombre ??
+    warehouses.find((warehouse) => warehouse.id === product.almacenId)?.nombre ??
     '—'
 
   if (isLoading) {
@@ -205,6 +239,37 @@ export default function ProductsView({
 
           <select
             className={`${ui.select} ${ui.selectCompact}`}
+            value={branchFilter}
+            onChange={(event) => {
+              setBranchFilter(event.target.value)
+              setWarehouseFilter('')
+            }}
+            aria-label="Filtrar por sucursal"
+          >
+            <option value="">Todas las sucursales</option>
+            {branches.map((branch) => (
+              <option key={branch.id} value={branch.id}>
+                {branch.nombre}
+              </option>
+            ))}
+          </select>
+
+          <select
+            className={`${ui.select} ${ui.selectCompact}`}
+            value={warehouseFilter}
+            onChange={(event) => setWarehouseFilter(event.target.value)}
+            aria-label="Filtrar por almacén"
+          >
+            <option value="">Todos los almacenes</option>
+            {warehouseOptions.map((warehouse) => (
+              <option key={warehouse.id} value={warehouse.id}>
+                {warehouse.nombre}
+              </option>
+            ))}
+          </select>
+
+          <select
+            className={`${ui.select} ${ui.selectCompact}`}
             value={statusFilter}
             onChange={(event) => setStatusFilter(event.target.value)}
             aria-label="Filtrar por estado"
@@ -270,6 +335,8 @@ export default function ProductsView({
                 <th>Producto</th>
                 <th>Categoría</th>
                 <th>Proveedor</th>
+                <th>Sucursal</th>
+                <th>Almacén</th>
                 <th>Precio</th>
                 <th>Costo</th>
                 <th>Stock</th>
@@ -296,6 +363,8 @@ export default function ProductsView({
                     </td>
                     <td data-label="Categoría">{categoryName(product)}</td>
                     <td data-label="Proveedor">{providerName(product)}</td>
+                    <td data-label="Sucursal">{branchName(product)}</td>
+                    <td data-label="Almacén">{warehouseName(product)}</td>
                     <td data-label="Precio" className={styles.money}>
                       {formatCurrency(product.precio)}
                     </td>
@@ -361,6 +430,8 @@ export default function ProductsView({
           product={editing === 'new' ? null : editing}
           categories={categories}
           providers={providers}
+          branches={branches}
+          warehouses={warehouses}
           onClose={() => setEditing(null)}
           onSubmit={handleSave}
         />

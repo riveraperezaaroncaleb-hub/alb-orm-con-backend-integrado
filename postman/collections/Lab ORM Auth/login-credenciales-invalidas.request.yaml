@@ -1,0 +1,28 @@
+$kind: http-request
+name: Login con credenciales inválidas
+method: POST
+url: '{{baseUrl}}/api/auth/login'
+order: 3000
+auth:
+  type: noauth
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "correo": "{{testEmail}}",
+      "password": "PasswordIncorrecta123!"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Credenciales inválidas devuelven 401', function () {
+        pm.response.to.have.status(401)
+      })
+
+      pm.test('No se emite token con credenciales inválidas', function () {
+        pm.expect(pm.response.json().token).to.be.undefined
+      })

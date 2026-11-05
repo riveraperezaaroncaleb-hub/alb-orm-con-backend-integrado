@@ -6,6 +6,8 @@ const NAV_ITEMS = [
   { id: 'productos', label: 'Productos', icon: 'box', countKey: 'productos' },
   { id: 'categorias', label: 'Categorías', icon: 'tag', countKey: 'categorias' },
   { id: 'proveedores', label: 'Proveedores', icon: 'truck', countKey: 'proveedores' },
+  { id: 'sucursales', label: 'Sucursales', icon: 'store', countKey: 'sucursales' },
+  { id: 'almacenes', label: 'Almacenes', icon: 'warehouse', countKey: 'almacenes' },
   { id: 'usuarios', label: 'Usuarios', icon: 'users', countKey: 'usuarios' },
 ]
 

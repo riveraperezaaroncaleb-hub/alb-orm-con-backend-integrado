@@ -1,7 +1,11 @@
 const bcrypt = require('bcryptjs');
-const { Usuario } = require('../models');
+const { Usuario, Sucursal } = require('../models');
 
 const SALT_ROUNDS = 10;
+
+const incluirRelaciones = [
+  { model: Sucursal, as: 'sucursal', attributes: ['id', 'nombre', 'codigo'] }
+];
 
 const manejarError = (res, error) => {
   if (error.name === 'SequelizeUniqueConstraintError') {
@@ -18,6 +22,12 @@ const manejarError = (res, error) => {
     });
   }
 
+  if (error.name === 'SequelizeForeignKeyConstraintError') {
+    return res.status(409).json({
+      mensaje: 'La sucursal indicada no existe.'
+    });
+  }
+
   return res.status(500).json({ mensaje: 'Error interno del servidor.' });
 };
 
@@ -25,7 +35,18 @@ const normalizarCorreo = (correo) => String(correo).trim().toLowerCase();
 
 const listar = async (req, res) => {
   try {
-    const usuarios = await Usuario.findAll({ order: [['id', 'ASC']] });
+    const where = {};
+
+    if (req.query.sucursalId) {
+      where.sucursalId = req.query.sucursalId;
+    }
+
+    const usuarios = await Usuario.findAll({
+      where,
+      include: incluirRelaciones,
+      order: [['id', 'ASC']]
+    });
+
     return res.json(usuarios);
   } catch (error) {
     return manejarError(res, error);
@@ -34,7 +55,9 @@ const listar = async (req, res) => {
 
 const obtener = async (req, res) => {
   try {
-    const usuario = await Usuario.findByPk(req.params.id);
+    const usuario = await Usuario.findByPk(req.params.id, {
+      include: incluirRelaciones
+    });
 
     if (!usuario) {
       return res.status(404).json({ mensaje: 'Usuario no encontrado.' });
@@ -48,7 +71,7 @@ const obtener = async (req, res) => {
 
 const crear = async (req, res) => {
   try {
-    const { nombre, correo, password } = req.body;
+    const { nombre, correo, password, sucursalId } = req.body;
 
     if (!password || String(password).length < 6) {
       return res.status(400).json({
@@ -61,7 +84,8 @@ const crear = async (req, res) => {
     const usuario = await Usuario.create({
       nombre,
       correo: correo ? normalizarCorreo(correo) : correo,
-      password: passwordHash
+      password: passwordHash,
+      sucursalId: sucursalId || null
     });
 
     return res.status(201).json(usuario);
@@ -78,7 +102,7 @@ const actualizar = async (req, res) => {
       return res.status(404).json({ mensaje: 'Usuario no encontrado.' });
     }
 
-    const { nombre, correo, password } = req.body;
+    const { nombre, correo, password, sucursalId } = req.body;
     const cambios = {};
 
     if (nombre !== undefined) {
@@ -87,6 +111,10 @@ const actualizar = async (req, res) => {
 
     if (correo !== undefined) {
       cambios.correo = normalizarCorreo(correo);
+    }
+
+    if (sucursalId !== undefined) {
+      cambios.sucursalId = sucursalId || null;
     }
 
     if (password) {

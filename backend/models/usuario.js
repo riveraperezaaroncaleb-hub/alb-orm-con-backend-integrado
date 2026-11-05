@@ -10,7 +10,30 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      Usuario.hasMany(models.Compra, {
+        foreignKey: 'usuarioId',
+        as: 'compras',
+        onDelete: 'RESTRICT',
+        onUpdate: 'CASCADE'
+      });
+      Usuario.hasMany(models.Venta, {
+        foreignKey: 'usuarioId',
+        as: 'ventas',
+        onDelete: 'RESTRICT',
+        onUpdate: 'CASCADE'
+      });
+      Usuario.hasMany(models.MovimientoInventario, {
+        foreignKey: 'usuarioId',
+        as: 'movimientosInventario',
+        onDelete: 'RESTRICT',
+        onUpdate: 'CASCADE'
+      });
+      Usuario.belongsTo(models.Sucursal, {
+        foreignKey: 'sucursalId',
+        as: 'sucursal',
+        onDelete: 'RESTRICT',
+        onUpdate: 'CASCADE'
+      });
     }
 
     toJSON() {
@@ -50,6 +73,16 @@ module.exports = (sequelize, DataTypes) => {
           msg: 'La contraseña es obligatoria.'
         }
       }
+    },
+    sucursalId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'sucursales',
+        key: 'id'
+      },
+      onDelete: 'RESTRICT',
+      onUpdate: 'CASCADE'
     }
   }, {
     sequelize,

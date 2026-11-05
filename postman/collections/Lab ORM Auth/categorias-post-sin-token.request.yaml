@@ -1,0 +1,23 @@
+$kind: http-request
+name: Categorías POST sin token
+method: POST
+url: '{{baseUrl}}/api/categorias'
+order: 6000
+auth:
+  type: noauth
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "nombre": "Categoría sin autorización"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Crear categoría sin token devuelve 401', function () {
+        pm.response.to.have.status(401)
+      })

@@ -1,9 +1,13 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { Usuario } = require('../models');
+const { Usuario, Sucursal } = require('../models');
 
 const SALT_ROUNDS = 10;
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '8h';
+
+const incluirSucursal = [
+  { model: Sucursal, as: 'sucursal', attributes: ['id', 'nombre', 'codigo'] }
+];
 
 const manejarError = (res, error) => {
   if (error.name === 'SequelizeUniqueConstraintError') {
@@ -96,7 +100,8 @@ const iniciarSesion = async (req, res) => {
     }
 
     const usuario = await Usuario.findOne({
-      where: { correo: normalizarCorreo(correo) }
+      where: { correo: normalizarCorreo(correo) },
+      include: incluirSucursal
     });
 
     if (!usuario) {
@@ -130,7 +135,9 @@ const iniciarSesion = async (req, res) => {
 
 const perfil = async (req, res) => {
   try {
-    const usuario = await Usuario.findByPk(req.usuario.id);
+    const usuario = await Usuario.findByPk(req.usuario.id, {
+      include: incluirSucursal
+    });
 
     if (!usuario) {
       return res.status(404).json({ mensaje: 'Usuario no encontrado.' });

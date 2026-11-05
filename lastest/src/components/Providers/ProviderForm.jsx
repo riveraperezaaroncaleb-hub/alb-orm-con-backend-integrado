@@ -5,7 +5,7 @@ import ui from '../../styles/ui.module.css'
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-export default function ProviderForm({ provider, onClose, onSubmit }) {
+export default function ProviderForm({ provider, branches, onClose, onSubmit }) {
   const formId = useId()
   const [values, setValues] = useState(() => ({
     nombre: provider?.nombre ?? '',
@@ -16,6 +16,7 @@ export default function ProviderForm({ provider, onClose, onSubmit }) {
     ciudad: provider?.ciudad ?? '',
     pais: provider?.pais ?? '',
     activo: provider?.activo ?? true,
+    sucursalId: provider?.sucursalId ? String(provider.sucursalId) : '',
   }))
   const [errors, setErrors] = useState({})
   const [formError, setFormError] = useState('')
@@ -38,6 +39,10 @@ export default function ProviderForm({ provider, onClose, onSubmit }) {
       nextErrors.email = 'Ingresa un email válido.'
     }
 
+    if (!values.sucursalId) {
+      nextErrors.sucursalId = 'Selecciona una sucursal.'
+    }
+
     if (Object.keys(nextErrors).length > 0) {
       setErrors(nextErrors)
       return
@@ -57,6 +62,7 @@ export default function ProviderForm({ provider, onClose, onSubmit }) {
         ciudad: values.ciudad.trim() || null,
         pais: values.pais.trim() || null,
         activo: values.activo,
+        sucursalId: Number(values.sucursalId),
       })
       success = true
     } catch (error) {
@@ -119,6 +125,28 @@ export default function ProviderForm({ provider, onClose, onSubmit }) {
               placeholder="Ej. Distribuidora Sur"
             />
             {errors.nombre ? <span className={ui.fieldError}>{errors.nombre}</span> : null}
+          </div>
+
+          <div className={ui.field}>
+            <label className={ui.label} htmlFor={`${formId}-sucursal`}>
+              Sucursal *
+            </label>
+            <select
+              id={`${formId}-sucursal`}
+              className={`${ui.select} ${errors.sucursalId ? ui.inputError : ''}`}
+              value={values.sucursalId}
+              onChange={(event) => updateField('sucursalId', event.target.value)}
+            >
+              <option value="">Seleccionar sucursal</option>
+              {branches.map((branch) => (
+                <option key={branch.id} value={branch.id}>
+                  {branch.nombre} · {branch.codigo}
+                </option>
+              ))}
+            </select>
+            {errors.sucursalId ? (
+              <span className={ui.fieldError}>{errors.sucursalId}</span>
+            ) : null}
           </div>
 
           <div className={ui.field}>

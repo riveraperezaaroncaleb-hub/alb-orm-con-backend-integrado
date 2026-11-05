@@ -1,0 +1,14 @@
+$kind: http-request
+name: Almacenes GET sin token
+method: GET
+url: '{{baseUrl}}/api/almacenes'
+order: 4300
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Listar almacenes sin token devuelve 401', function () {
+        pm.response.to.have.status(401)
+      })

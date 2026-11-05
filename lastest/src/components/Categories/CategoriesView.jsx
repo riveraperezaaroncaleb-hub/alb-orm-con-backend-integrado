@@ -10,22 +10,39 @@ import Loader from '../Loader/Loader'
 import ui from '../../styles/ui.module.css'
 import styles from './CategoriesView.module.css'
 
-export default function CategoriesView({ categories, products, isLoading, onRefresh }) {
+export default function CategoriesView({
+  categories,
+  products,
+  branches,
+  isLoading,
+  onRefresh,
+}) {
   const { notify } = useToast()
   const [search, setSearch] = useState('')
+  const [branchFilter, setBranchFilter] = useState('')
   const [editing, setEditing] = useState(null)
   const [deleting, setDeleting] = useState(null)
   const [busy, setBusy] = useState(false)
 
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase()
-    return categories.filter(
-      (category) =>
+
+    return categories.filter((category) => {
+      const matchesSearch =
         !term ||
         category.nombre.toLowerCase().includes(term) ||
-        (category.descripcion ?? '').toLowerCase().includes(term),
-    )
-  }, [categories, search])
+        (category.descripcion ?? '').toLowerCase().includes(term)
+      const matchesBranch =
+        !branchFilter || String(category.sucursalId) === branchFilter
+
+      return matchesSearch && matchesBranch
+    })
+  }, [categories, search, branchFilter])
+
+  const branchName = (category) =>
+    category.sucursal?.nombre ??
+    branches.find((branch) => branch.id === category.sucursalId)?.nombre ??
+    'Sin sucursal'
 
   const handleSave = async (payload) => {
     if (editing === 'new') {
@@ -93,11 +110,28 @@ export default function CategoriesView({ categories, products, isLoading, onRefr
               aria-label="Buscar categorías"
             />
           </div>
-          {search ? (
+          <select
+            className={`${ui.select} ${ui.selectCompact}`}
+            value={branchFilter}
+            onChange={(event) => setBranchFilter(event.target.value)}
+            aria-label="Filtrar categorías por sucursal"
+          >
+            <option value="">Todas las sucursales</option>
+            {branches.map((branch) => (
+              <option key={branch.id} value={branch.id}>
+                {branch.nombre}
+              </option>
+            ))}
+          </select>
+
+          {search || branchFilter ? (
             <button
               type="button"
               className={`${ui.btn} ${ui.btnGhost} ${ui.btnSm}`}
-              onClick={() => setSearch('')}
+              onClick={() => {
+                setSearch('')
+                setBranchFilter('')
+              }}
             >
               <Icon name="close" size={14} />
               Limpiar
@@ -123,7 +157,14 @@ export default function CategoriesView({ categories, products, isLoading, onRefr
               : 'No hay categorías que coincidan con la búsqueda.'
           }
           actionLabel={categories.length === 0 ? 'Crear categoría' : 'Limpiar búsqueda'}
-          onAction={categories.length === 0 ? () => setEditing('new') : () => setSearch('')}
+          onAction={
+            categories.length === 0
+              ? () => setEditing('new')
+              : () => {
+                  setSearch('')
+                  setBranchFilter('')
+                }
+          }
         />
       ) : (
         <div className={styles.grid}>
@@ -154,6 +195,11 @@ export default function CategoriesView({ categories, products, isLoading, onRefr
                 <p className={styles.description}>
                   {category.descripcion || 'Sin descripción registrada.'}
                 </p>
+
+                <span className={styles.branch}>
+                  <Icon name="store" size={13} />
+                  {branchName(category)}
+                </span>
 
                 <div className={styles.stats}>
                   <div className={styles.stat}>
@@ -193,6 +239,7 @@ export default function CategoriesView({ categories, products, isLoading, onRefr
       {editing ? (
         <CategoryForm
           category={editing === 'new' ? null : editing}
+          branches={branches}
           onClose={() => setEditing(null)}
           onSubmit={handleSave}
         />

@@ -1,8 +1,10 @@
-const { Producto, Categoria, Proveedor } = require('../models');
+const { Producto, Categoria, Proveedor, Sucursal, Almacen } = require('../models');
 
 const incluirRelaciones = [
   { model: Categoria, as: 'categoria', attributes: ['id', 'nombre'] },
-  { model: Proveedor, as: 'proveedor', attributes: ['id', 'nombre'] }
+  { model: Proveedor, as: 'proveedor', attributes: ['id', 'nombre'] },
+  { model: Sucursal, as: 'sucursal', attributes: ['id', 'nombre', 'codigo'] },
+  { model: Almacen, as: 'almacen', attributes: ['id', 'nombre', 'codigo'] }
 ];
 
 const manejarError = (res, error) => {
@@ -22,7 +24,7 @@ const manejarError = (res, error) => {
 
   if (error.name === 'SequelizeForeignKeyConstraintError') {
     return res.status(409).json({
-      mensaje: 'La categoría o el proveedor indicado no existe.'
+      mensaje: 'La categoría, el proveedor, la sucursal o el almacén indicado no existe.'
     });
   }
 
@@ -39,6 +41,14 @@ const listar = async (req, res) => {
 
     if (req.query.proveedorId) {
       where.proveedorId = req.query.proveedorId;
+    }
+
+    if (req.query.sucursalId) {
+      where.sucursalId = req.query.sucursalId;
+    }
+
+    if (req.query.almacenId) {
+      where.almacenId = req.query.almacenId;
     }
 
     if (req.query.activo !== undefined) {
@@ -86,7 +96,9 @@ const crear = async (req, res) => {
       unidadMedida,
       activo,
       categoriaId,
-      proveedorId
+      proveedorId,
+      sucursalId,
+      almacenId
     } = req.body;
 
     const producto = await Producto.create({
@@ -100,7 +112,9 @@ const crear = async (req, res) => {
       unidadMedida,
       activo,
       categoriaId,
-      proveedorId
+      proveedorId,
+      sucursalId,
+      almacenId
     });
 
     return res.status(201).json(producto);
@@ -128,7 +142,9 @@ const actualizar = async (req, res) => {
       unidadMedida,
       activo,
       categoriaId,
-      proveedorId
+      proveedorId,
+      sucursalId,
+      almacenId
     } = req.body;
 
     await producto.update({
@@ -142,7 +158,9 @@ const actualizar = async (req, res) => {
       unidadMedida,
       activo,
       categoriaId,
-      proveedorId
+      proveedorId,
+      sucursalId,
+      almacenId
     });
 
     return res.json(producto);

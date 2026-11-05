@@ -12,6 +12,8 @@ function buildInitialValues(product) {
     sku: product?.sku ?? '',
     categoriaId: product?.categoriaId ? String(product.categoriaId) : '',
     proveedorId: product?.proveedorId ? String(product.proveedorId) : '',
+    sucursalId: product?.sucursalId ? String(product.sucursalId) : '',
+    almacenId: product?.almacenId ? String(product.almacenId) : '',
     precio: product?.precio ?? '',
     costo: product?.costo ?? '',
     stock: product?.stock ?? 0,
@@ -28,6 +30,7 @@ function validate(values) {
   if (!values.sku.trim()) errors.sku = 'Ingresa el SKU.'
   if (!values.categoriaId) errors.categoriaId = 'Selecciona una categoría.'
   if (!values.proveedorId) errors.proveedorId = 'Selecciona un proveedor.'
+  if (!values.sucursalId) errors.sucursalId = 'Selecciona una sucursal.'
 
   const numericFields = [
     ['precio', 'el precio'],
@@ -58,7 +61,15 @@ function validate(values) {
   return errors
 }
 
-export default function ProductForm({ product, categories, providers, onClose, onSubmit }) {
+export default function ProductForm({
+  product,
+  categories,
+  providers,
+  branches,
+  warehouses,
+  onClose,
+  onSubmit,
+}) {
   const formId = useId()
   const [values, setValues] = useState(() => buildInitialValues(product))
   const [errors, setErrors] = useState({})
@@ -69,6 +80,15 @@ export default function ProductForm({ product, categories, providers, onClose, o
     setValues((current) => ({ ...current, [field]: value }))
     setErrors((current) => ({ ...current, [field]: '' }))
   }
+
+  const updateBranch = (value) => {
+    setValues((current) => ({ ...current, sucursalId: value, almacenId: '' }))
+    setErrors((current) => ({ ...current, sucursalId: '', almacenId: '' }))
+  }
+
+  const availableWarehouses = warehouses.filter(
+    (warehouse) => String(warehouse.sucursalId) === values.sucursalId,
+  )
 
   const handleSubmit = async (event) => {
     event.preventDefault()
@@ -96,6 +116,8 @@ export default function ProductForm({ product, categories, providers, onClose, o
         activo: values.activo,
         categoriaId: Number(values.categoriaId),
         proveedorId: Number(values.proveedorId),
+        sucursalId: Number(values.sucursalId),
+        almacenId: values.almacenId ? Number(values.almacenId) : null,
       })
       success = true
     } catch (error) {
@@ -229,6 +251,50 @@ export default function ProductForm({ product, categories, providers, onClose, o
             {errors.proveedorId ? (
               <span className={ui.fieldError}>{errors.proveedorId}</span>
             ) : null}
+          </div>
+
+          <div className={ui.field}>
+            <label className={ui.label} htmlFor={`${formId}-sucursal`}>
+              Sucursal *
+            </label>
+            <select
+              id={`${formId}-sucursal`}
+              className={`${ui.select} ${errors.sucursalId ? ui.inputError : ''}`}
+              value={values.sucursalId}
+              onChange={(event) => updateBranch(event.target.value)}
+            >
+              <option value="">Seleccionar sucursal</option>
+              {branches.map((branch) => (
+                <option key={branch.id} value={branch.id}>
+                  {branch.nombre} · {branch.codigo}
+                </option>
+              ))}
+            </select>
+            {errors.sucursalId ? (
+              <span className={ui.fieldError}>{errors.sucursalId}</span>
+            ) : null}
+          </div>
+
+          <div className={ui.field}>
+            <label className={ui.label} htmlFor={`${formId}-almacen`}>
+              Almacén
+            </label>
+            <select
+              id={`${formId}-almacen`}
+              className={ui.select}
+              value={values.almacenId}
+              onChange={(event) => updateField('almacenId', event.target.value)}
+              disabled={!values.sucursalId}
+            >
+              <option value="">
+                {values.sucursalId ? 'Sin almacén asignado' : 'Selecciona una sucursal'}
+              </option>
+              {availableWarehouses.map((warehouse) => (
+                <option key={warehouse.id} value={warehouse.id}>
+                  {warehouse.nombre} · {warehouse.codigo}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className={ui.field}>

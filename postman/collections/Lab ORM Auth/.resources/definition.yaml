@@ -1,0 +1,14 @@
+$kind: collection
+name: Lab ORM Auth
+variables:
+  - key: testName
+    value: 'Usuario de Prueba'
+  - key: testPassword
+    value: 'Secreto123!'
+  - key: token
+    value: ''
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'

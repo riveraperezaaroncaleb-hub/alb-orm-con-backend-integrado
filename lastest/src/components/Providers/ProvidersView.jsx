@@ -10,9 +10,16 @@ import ProviderForm from './ProviderForm'
 import ui from '../../styles/ui.module.css'
 import styles from './ProvidersView.module.css'
 
-export default function ProvidersView({ providers, products, isLoading, onRefresh }) {
+export default function ProvidersView({
+  providers,
+  products,
+  branches,
+  isLoading,
+  onRefresh,
+}) {
   const { notify } = useToast()
   const [search, setSearch] = useState('')
+  const [branchFilter, setBranchFilter] = useState('')
   const [editing, setEditing] = useState(null)
   const [deleting, setDeleting] = useState(null)
   const [busy, setBusy] = useState(false)
@@ -21,12 +28,22 @@ export default function ProvidersView({ providers, products, isLoading, onRefres
     const term = search.trim().toLowerCase()
 
     return providers.filter((provider) => {
-      if (!term) return true
-      return [provider.nombre, provider.contacto, provider.email, provider.ciudad, provider.pais]
-        .filter(Boolean)
-        .some((value) => value.toLowerCase().includes(term))
+      const matchesSearch =
+        !term ||
+        [provider.nombre, provider.contacto, provider.email, provider.ciudad, provider.pais]
+          .filter(Boolean)
+          .some((value) => value.toLowerCase().includes(term))
+      const matchesBranch =
+        !branchFilter || String(provider.sucursalId) === branchFilter
+
+      return matchesSearch && matchesBranch
     })
-  }, [providers, search])
+  }, [providers, search, branchFilter])
+
+  const branchName = (provider) =>
+    provider.sucursal?.nombre ??
+    branches.find((branch) => branch.id === provider.sucursalId)?.nombre ??
+    'Sin sucursal'
 
   const handleSave = async (payload) => {
     if (editing === 'new') {
@@ -94,11 +111,28 @@ export default function ProvidersView({ providers, products, isLoading, onRefres
               aria-label="Buscar proveedores"
             />
           </div>
-          {search ? (
+          <select
+            className={`${ui.select} ${ui.selectCompact}`}
+            value={branchFilter}
+            onChange={(event) => setBranchFilter(event.target.value)}
+            aria-label="Filtrar proveedores por sucursal"
+          >
+            <option value="">Todas las sucursales</option>
+            {branches.map((branch) => (
+              <option key={branch.id} value={branch.id}>
+                {branch.nombre}
+              </option>
+            ))}
+          </select>
+
+          {search || branchFilter ? (
             <button
               type="button"
               className={`${ui.btn} ${ui.btnGhost} ${ui.btnSm}`}
-              onClick={() => setSearch('')}
+              onClick={() => {
+                setSearch('')
+                setBranchFilter('')
+              }}
             >
               <Icon name="close" size={14} />
               Limpiar
@@ -124,7 +158,14 @@ export default function ProvidersView({ providers, products, isLoading, onRefres
               : 'No hay proveedores que coincidan con la búsqueda.'
           }
           actionLabel={providers.length === 0 ? 'Crear proveedor' : 'Limpiar búsqueda'}
-          onAction={providers.length === 0 ? () => setEditing('new') : () => setSearch('')}
+          onAction={
+            providers.length === 0
+              ? () => setEditing('new')
+              : () => {
+                  setSearch('')
+                  setBranchFilter('')
+                }
+          }
         />
       ) : (
         <div className={styles.grid}>
@@ -168,6 +209,10 @@ export default function ProvidersView({ providers, products, isLoading, onRefres
                     <Icon name="pin" size={15} />
                     <span>{location || 'Sin ubicación'}</span>
                   </li>
+                  <li className={styles.contactRow}>
+                    <Icon name="store" size={15} />
+                    <span>{branchName(provider)}</span>
+                  </li>
                 </ul>
 
                 <div className={styles.footer}>
@@ -203,6 +248,7 @@ export default function ProvidersView({ providers, products, isLoading, onRefres
       {editing ? (
         <ProviderForm
           provider={editing === 'new' ? null : editing}
+          branches={branches}
           onClose={() => setEditing(null)}
           onSubmit={handleSave}
         />

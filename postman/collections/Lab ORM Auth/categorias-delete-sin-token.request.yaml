@@ -1,0 +1,14 @@
+$kind: http-request
+name: Categorías DELETE sin token
+method: DELETE
+url: '{{baseUrl}}/api/categorias/1'
+order: 8000
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Eliminar categoría sin token devuelve 401', function () {
+        pm.response.to.have.status(401)
+      })

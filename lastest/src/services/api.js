@@ -1,4 +1,5 @@
-import { API_BASE_URL } from '../config'
+import axios from 'axios'
+import apiClient from './apiClient'
 
 export class ApiError extends Error {
   constructor(message, status = 0, details = []) {
@@ -9,57 +10,66 @@ export class ApiError extends Error {
   }
 }
 
-async function request(path, { method = 'GET', body, signal } = {}) {
-  let response
-
-  try {
-    response = await fetch(`${API_BASE_URL}${path}`, {
-      method,
-      signal,
-      headers: body ? { 'Content-Type': 'application/json' } : undefined,
-      body: body ? JSON.stringify(body) : undefined,
-    })
-  } catch (error) {
-    if (error.name === 'AbortError') throw error
-    throw new ApiError(
-      'No se pudo conectar con el servidor. Verifica que el backend esté en ejecución.',
-      0,
-    )
+function normalizeError(error) {
+  if (axios.isCancel(error) || error.code === 'ERR_CANCELED') {
+    const canceled = new Error('Solicitud cancelada')
+    canceled.name = 'AbortError'
+    return canceled
   }
 
-  if (response.status === 204) {
-    return null
-  }
-
-  let data = null
-  try {
-    data = await response.json()
-  } catch {
-    // respuestas sin cuerpo JSON: se conserva null
-  }
-
-  if (!response.ok) {
-    throw new ApiError(
-      data?.mensaje ?? `El servidor respondió con el estado ${response.status}.`,
-      response.status,
+  if (error.response) {
+    const data = error.response.data
+    return new ApiError(
+      data?.mensaje ?? `El servidor respondió con el estado ${error.response.status}.`,
+      error.response.status,
       data?.errores ?? [],
     )
   }
 
-  return data
+  return new ApiError(
+    'No se pudo conectar con el servidor. Verifica que el backend esté en ejecución.',
+    0,
+  )
+}
+
+async function request(config) {
+  try {
+    const response = await apiClient.request(config)
+
+    if (response.status === 204) {
+      return null
+    }
+
+    return response.data ?? null
+  } catch (error) {
+    throw normalizeError(error)
+  }
 }
 
 export const api = {
   list(resource, options = {}) {
-    return request(`/${resource}`, options)
+    return request({
+      url: `/${resource}`,
+      method: 'GET',
+      signal: options.signal,
+    })
   },
   create(resource, payload) {
-    return request(`/${resource}`, { method: 'POST', body: payload })
+    return request({ url: `/${resource}`, method: 'POST', data: payload })
   },
   update(resource, id, payload) {
-    return request(`/${resource}/${id}`, { method: 'PUT', body: payload })
+    return request({ url: `/${resource}/${id}`, method: 'PUT', data: payload })
   },
   remove(resource, id) {
-    return request(`/${resource}/${id}`, { method: 'DELETE' })
+    return request({ url: `/${resource}/${id}`, method: 'DELETE' })
+  },
+  login(credentials) {
+    return request({ url: '/auth/login', method: 'POST', data: credentials })
+  },
+  register(payload) {
+    return request({ url: '/auth/register', method: 'POST', data: payload })
+  },
+  profile() {
+    return request({ url: '/auth/perfil', method: 'GET' })
   },
 }

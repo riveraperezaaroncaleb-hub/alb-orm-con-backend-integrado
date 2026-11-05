@@ -22,6 +22,8 @@ export default function Dashboard({
   products,
   categories,
   providers,
+  branches,
+  warehouses,
   users,
   isLoading,
   onNavigate,
@@ -46,6 +48,8 @@ export default function Dashboard({
     const outOfStock = products.filter((product) => Number(product.stock || 0) <= 0).length
     const activeCategories = categories.filter((category) => category.activa).length
     const activeProviders = providers.filter((provider) => provider.activo).length
+    const activeBranches = branches.filter((branch) => branch.activo).length
+    const activeWarehouses = warehouses.filter((warehouse) => warehouse.activo).length
 
     return {
       activeProducts,
@@ -56,8 +60,10 @@ export default function Dashboard({
       outOfStock,
       activeCategories,
       activeProviders,
+      activeBranches,
+      activeWarehouses,
     }
-  }, [products, categories, providers])
+  }, [products, categories, providers, branches, warehouses])
 
   const categorySummary = useMemo(() => {
     const rows = categories.map((category) => {
@@ -101,8 +107,8 @@ export default function Dashboard({
           </span>
           <h2 className={styles.welcomeTitle}>Todo tu almacén en una sola vista</h2>
           <p className={styles.welcomeText}>
-            Controla existencias, detecta faltantes y mantén actualizado el catálogo de
-            productos, categorías y proveedores.
+            Controla existencias por sucursal, detecta faltantes y mantén actualizado el
+            catálogo de productos, categorías y proveedores.
           </p>
           <div className={styles.welcomeActions}>
             <button
@@ -174,6 +180,20 @@ export default function Dashboard({
           helper={`${formatNumber(summary.activeProviders)} activos · ${formatNumber(users.length)} usuarios`}
           icon="truck"
           tone="rose"
+        />
+        <StatCard
+          label="Sucursales"
+          value={formatNumber(branches.length)}
+          helper={`${formatNumber(summary.activeBranches)} activas`}
+          icon="store"
+          tone="sky"
+        />
+        <StatCard
+          label="Almacenes"
+          value={formatNumber(warehouses.length)}
+          helper={`${formatNumber(summary.activeWarehouses)} activos`}
+          icon="warehouse"
+          tone="mint"
         />
       </section>
 
@@ -308,7 +328,9 @@ export default function Dashboard({
                 <div className={styles.recentInfo}>
                   <p className={styles.recentName}>{product.nombre}</p>
                   <p className={styles.recentMeta}>
-                    {product.sku} · {product.categoria?.nombre ?? 'Sin categoría'}
+                    {product.sku} · {product.categoria?.nombre ?? 'Sin categoría'} ·{' '}
+                    {product.sucursal?.nombre ?? 'Sin sucursal'} ·{' '}
+                    {product.almacen?.nombre ?? 'Sin almacén'}
                   </p>
                 </div>
                 <div className={styles.recentSide}>

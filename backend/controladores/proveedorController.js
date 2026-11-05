@@ -1,4 +1,8 @@
-const { Proveedor } = require('../models');
+const { Proveedor, Sucursal } = require('../models');
+
+const incluirRelaciones = [
+  { model: Sucursal, as: 'sucursal', attributes: ['id', 'nombre', 'codigo'] }
+];
 
 const manejarError = (res, error) => {
   if (error.name === 'SequelizeUniqueConstraintError') {
@@ -17,7 +21,8 @@ const manejarError = (res, error) => {
 
   if (error.name === 'SequelizeForeignKeyConstraintError') {
     return res.status(409).json({
-      mensaje: 'No se puede eliminar el proveedor porque tiene productos asociados.'
+      mensaje:
+        'No se pudo completar la operación: la sucursal indicada no existe o el proveedor tiene productos asociados.'
     });
   }
 
@@ -40,8 +45,13 @@ const listar = async (req, res) => {
       where.ciudad = req.query.ciudad;
     }
 
+    if (req.query.sucursalId) {
+      where.sucursalId = req.query.sucursalId;
+    }
+
     const proveedores = await Proveedor.findAll({
       where,
+      include: incluirRelaciones,
       order: [['id', 'ASC']]
     });
 
@@ -53,7 +63,9 @@ const listar = async (req, res) => {
 
 const obtener = async (req, res) => {
   try {
-    const proveedor = await Proveedor.findByPk(req.params.id);
+    const proveedor = await Proveedor.findByPk(req.params.id, {
+      include: incluirRelaciones
+    });
 
     if (!proveedor) {
       return res.status(404).json({ mensaje: 'Proveedor no encontrado.' });
@@ -75,7 +87,8 @@ const crear = async (req, res) => {
       direccion,
       ciudad,
       pais,
-      activo
+      activo,
+      sucursalId
     } = req.body;
 
     const proveedor = await Proveedor.create({
@@ -86,7 +99,8 @@ const crear = async (req, res) => {
       direccion,
       ciudad,
       pais,
-      activo
+      activo,
+      sucursalId
     });
 
     return res.status(201).json(proveedor);
@@ -111,7 +125,8 @@ const actualizar = async (req, res) => {
       direccion,
       ciudad,
       pais,
-      activo
+      activo,
+      sucursalId
     } = req.body;
 
     await proveedor.update({
@@ -122,7 +137,8 @@ const actualizar = async (req, res) => {
       direccion,
       ciudad,
       pais,
-      activo
+      activo,
+      sucursalId
     });
 
     return res.json(proveedor);

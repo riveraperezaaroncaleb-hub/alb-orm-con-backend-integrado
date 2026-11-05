@@ -1,0 +1,14 @@
+$kind: http-request
+name: Categorías GET sin token
+method: GET
+url: '{{baseUrl}}/api/categorias'
+order: 5000
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Listar categorías sin token devuelve 401', function () {
+        pm.response.to.have.status(401)
+      })

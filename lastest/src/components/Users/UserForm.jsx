@@ -3,11 +3,15 @@ import Icon from '../Icon/Icon'
 import Modal from '../Modal/Modal'
 import ui from '../../styles/ui.module.css'
 
-export default function UserForm({ user, onClose, onSubmit }) {
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+export default function UserForm({ user, branches, onClose, onSubmit }) {
   const formId = useId()
   const [values, setValues] = useState(() => ({
     nombre: user?.nombre ?? '',
-    edad: user?.edad ?? '',
+    correo: user?.correo ?? '',
+    password: '',
+    sucursalId: user?.sucursalId ? String(user.sucursalId) : '',
   }))
   const [errors, setErrors] = useState({})
   const [formError, setFormError] = useState('')
@@ -26,10 +30,16 @@ export default function UserForm({ user, onClose, onSubmit }) {
       nextErrors.nombre = 'Ingresa el nombre del usuario.'
     }
 
-    if (values.edad === '' || Number.isNaN(Number(values.edad))) {
-      nextErrors.edad = 'Ingresa la edad.'
-    } else if (Number(values.edad) < 0 || !Number.isInteger(Number(values.edad))) {
-      nextErrors.edad = 'La edad debe ser un número entero positivo.'
+    if (!values.correo.trim()) {
+      nextErrors.correo = 'Ingresa el correo del usuario.'
+    } else if (!EMAIL_PATTERN.test(values.correo.trim())) {
+      nextErrors.correo = 'Ingresa un correo válido.'
+    }
+
+    if (!user && values.password.length < 6) {
+      nextErrors.password = 'La contraseña debe tener al menos 6 caracteres.'
+    } else if (user && values.password && values.password.length < 6) {
+      nextErrors.password = 'La nueva contraseña debe tener al menos 6 caracteres.'
     }
 
     if (Object.keys(nextErrors).length > 0) {
@@ -42,10 +52,17 @@ export default function UserForm({ user, onClose, onSubmit }) {
     let success = false
 
     try {
-      await onSubmit({
+      const payload = {
         nombre: values.nombre.trim(),
-        edad: Number(values.edad),
-      })
+        correo: values.correo.trim().toLowerCase(),
+        sucursalId: values.sucursalId ? Number(values.sucursalId) : null,
+      }
+
+      if (values.password) {
+        payload.password = values.password
+      }
+
+      await onSubmit(payload)
       success = true
     } catch (error) {
       setFormError(error.message)
@@ -60,7 +77,9 @@ export default function UserForm({ user, onClose, onSubmit }) {
       onClose={submitting ? () => {} : onClose}
       title={user ? 'Editar usuario' : 'Nuevo usuario'}
       subtitle={
-        user ? 'Actualiza los datos del usuario.' : 'Registra una nueva persona en el sistema.'
+        user
+          ? 'Actualiza los datos del usuario. Deja la contraseña vacía para conservarla.'
+          : 'Registra una nueva persona habilitada para acceder al sistema.'
       }
       footer={
         <>
@@ -102,25 +121,62 @@ export default function UserForm({ user, onClose, onSubmit }) {
               value={values.nombre}
               onChange={(event) => updateField('nombre', event.target.value)}
               placeholder="Ej. Ana Martínez"
+              autoComplete="name"
             />
             {errors.nombre ? <span className={ui.fieldError}>{errors.nombre}</span> : null}
           </div>
 
           <div className={ui.field}>
-            <label className={ui.label} htmlFor={`${formId}-edad`}>
-              Edad *
+            <label className={ui.label} htmlFor={`${formId}-correo`}>
+              Correo electrónico *
             </label>
             <input
-              id={`${formId}-edad`}
-              type="number"
-              min="0"
-              step="1"
-              className={`${ui.input} ${errors.edad ? ui.inputError : ''}`}
-              value={values.edad}
-              onChange={(event) => updateField('edad', event.target.value)}
-              placeholder="Ej. 28"
+              id={`${formId}-correo`}
+              type="email"
+              className={`${ui.input} ${errors.correo ? ui.inputError : ''}`}
+              value={values.correo}
+              onChange={(event) => updateField('correo', event.target.value)}
+              placeholder="usuario@correo.com"
+              autoComplete="email"
             />
-            {errors.edad ? <span className={ui.fieldError}>{errors.edad}</span> : null}
+            {errors.correo ? <span className={ui.fieldError}>{errors.correo}</span> : null}
+          </div>
+
+          <div className={ui.field}>
+            <label className={ui.label} htmlFor={`${formId}-sucursal`}>
+              Sucursal
+            </label>
+            <select
+              id={`${formId}-sucursal`}
+              className={ui.select}
+              value={values.sucursalId}
+              onChange={(event) => updateField('sucursalId', event.target.value)}
+            >
+              <option value="">Sin sucursal asignada</option>
+              {branches.map((branch) => (
+                <option key={branch.id} value={branch.id}>
+                  {branch.nombre} · {branch.codigo}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className={ui.field}>
+            <label className={ui.label} htmlFor={`${formId}-password`}>
+              {user ? 'Nueva contraseña' : 'Contraseña *'}
+            </label>
+            <input
+              id={`${formId}-password`}
+              type="password"
+              className={`${ui.input} ${errors.password ? ui.inputError : ''}`}
+              value={values.password}
+              onChange={(event) => updateField('password', event.target.value)}
+              placeholder={user ? 'Opcional' : 'Mínimo 6 caracteres'}
+              autoComplete="new-password"
+            />
+            {errors.password ? (
+              <span className={ui.fieldError}>{errors.password}</span>
+            ) : null}
           </div>
         </div>
       </form>

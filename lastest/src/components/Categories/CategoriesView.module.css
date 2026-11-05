@@ -55,6 +55,24 @@
   line-height: 1.5;
 }
 
+.branch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  align-self: flex-start;
+  padding: 0.24rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.branch svg {
+  color: var(--accent-2);
+}
+
 .stats {
   display: flex;
   gap: 1.4rem;

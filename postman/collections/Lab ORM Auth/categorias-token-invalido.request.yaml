@@ -1,0 +1,17 @@
+$kind: http-request
+name: Categorías con token inválido
+method: GET
+url: '{{baseUrl}}/api/categorias'
+order: 11000
+auth:
+  type: noauth
+headers:
+  - key: Authorization
+    value: Bearer token-invalido
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Token inválido devuelve 401', function () {
+        pm.response.to.have.status(401)
+      })

@@ -1,0 +1,14 @@
+$kind: http-request
+name: Sucursales GET sin token
+method: GET
+url: '{{baseUrl}}/api/sucursales'
+order: 4200
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Listar sucursales sin token devuelve 401', function () {
+        pm.response.to.have.status(401)
+      })

@@ -1,0 +1,23 @@
+$kind: http-request
+name: Categorías PUT sin token
+method: PUT
+url: '{{baseUrl}}/api/categorias/1'
+order: 7000
+auth:
+  type: noauth
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "nombre": "Categoría sin autorización"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Actualizar categoría sin token devuelve 401', function () {
+        pm.response.to.have.status(401)
+      })

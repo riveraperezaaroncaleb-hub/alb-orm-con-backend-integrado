@@ -1,0 +1,145 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background:
+    radial-gradient(circle at 100% 0%, rgba(167, 139, 250, 0.1), transparent 16rem),
+    var(--surface);
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  border-color: var(--border-strong);
+}
+
+.cardTop {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 2.8rem;
+  height: 2.8rem;
+  border-radius: 12px;
+  background: linear-gradient(145deg, rgba(167, 139, 250, 0.22), rgba(56, 189, 248, 0.14));
+  color: #d8ccff;
+}
+
+.headInfo {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.code {
+  color: var(--accent-2);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.name {
+  overflow: hidden;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.metaList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 0.8rem 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.metaRow {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.metaRow svg {
+  flex: 0 0 auto;
+  color: var(--accent-2);
+}
+
+.metaRow span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+  padding: 0.55rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.02);
+  text-align: center;
+}
+
+.statValue {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.statLabel {
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.1rem;
+}
+
+.actions button {
+  flex: 1;
+}
+
+@media (max-width: 420px) {
+  .stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

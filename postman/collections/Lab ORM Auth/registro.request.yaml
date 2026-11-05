@@ -1,0 +1,39 @@
+$kind: http-request
+name: Registro
+method: POST
+url: '{{baseUrl}}/api/auth/register'
+order: 1000
+auth:
+  type: noauth
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "nombre": "{{testName}}",
+      "correo": "{{testEmail}}",
+      "password": "{{testPassword}}"
+    }
+scripts:
+  - type: beforeRequest
+    language: text/javascript
+    code: |-
+      pm.collectionVariables.set('testEmail', `auth.${Date.now()}@example.com`)
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Registro devuelve 201', function () {
+        pm.response.to.have.status(201)
+      })
+
+      pm.test('Registro no expone la contraseña', function () {
+        pm.expect(pm.response.json().usuario.password).to.be.undefined
+      })
+
+      pm.test('Registro devuelve el correo normalizado', function () {
+        pm.expect(pm.response.json().usuario.correo).to.eql(
+          pm.collectionVariables.get('testEmail'),
+        )
+      })

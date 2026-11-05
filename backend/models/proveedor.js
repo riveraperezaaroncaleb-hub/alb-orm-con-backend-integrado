@@ -12,7 +12,21 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Proveedor.hasMany(models.Producto, {
         foreignKey: 'proveedorId',
-        as: 'productos'
+        as: 'productos',
+        onDelete: 'RESTRICT',
+        onUpdate: 'CASCADE'
+      });
+      Proveedor.hasMany(models.Compra, {
+        foreignKey: 'proveedorId',
+        as: 'compras',
+        onDelete: 'RESTRICT',
+        onUpdate: 'CASCADE'
+      });
+      Proveedor.belongsTo(models.Sucursal, {
+        foreignKey: 'sucursalId',
+        as: 'sucursal',
+        onDelete: 'RESTRICT',
+        onUpdate: 'CASCADE'
       });
     }
   }
@@ -50,6 +64,16 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: true
+    },
+    sucursalId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'sucursales',
+        key: 'id'
+      },
+      onDelete: 'RESTRICT',
+      onUpdate: 'CASCADE'
     }
   }, {
     sequelize,

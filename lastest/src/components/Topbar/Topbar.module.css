@@ -97,14 +97,100 @@
   animation: spin 0.9s linear infinite;
 }
 
+.account {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding-left: 0.7rem;
+  border-left: 1px solid var(--border);
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: var(--gradient-accent);
+  color: #04140e;
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
+.accountInfo {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  max-width: 12rem;
+  line-height: 1.15;
+}
+
+.accountName {
+  overflow: hidden;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.accountEmail {
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.accountBranch {
+  overflow: hidden;
+  color: var(--accent-2);
+  font-size: 0.64rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.logout {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    color 0.18s ease,
+    border-color 0.18s ease,
+    background 0.18s ease;
+}
+
+.logout:hover {
+  border-color: rgba(255, 93, 115, 0.45);
+  background: rgba(255, 93, 115, 0.1);
+  color: #ff9aa8;
+}
+
 @media (max-width: 1023px) {
   .menuButton {
     display: grid;
+  }
+
+  .accountInfo {
+    display: none;
   }
 }
 
 @media (max-width: 720px) {
   .date {
+    display: none;
+  }
+
+  .logout span {
     display: none;
   }
 

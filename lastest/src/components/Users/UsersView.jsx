@@ -10,19 +10,32 @@ import UserForm from './UserForm'
 import ui from '../../styles/ui.module.css'
 import styles from './UsersView.module.css'
 
-export default function UsersView({ users, isLoading, onRefresh }) {
+export default function UsersView({ users, branches, isLoading, onRefresh }) {
   const { notify } = useToast()
   const [search, setSearch] = useState('')
+  const [branchFilter, setBranchFilter] = useState('')
   const [editing, setEditing] = useState(null)
   const [deleting, setDeleting] = useState(null)
   const [busy, setBusy] = useState(false)
 
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase()
-    return users.filter(
-      (user) => !term || user.nombre.toLowerCase().includes(term),
-    )
-  }, [users, search])
+
+    return users.filter((user) => {
+      const matchesSearch =
+        !term ||
+        user.nombre.toLowerCase().includes(term) ||
+        (user.correo ?? '').toLowerCase().includes(term)
+      const matchesBranch = !branchFilter || String(user.sucursalId) === branchFilter
+
+      return matchesSearch && matchesBranch
+    })
+  }, [users, search, branchFilter])
+
+  const branchName = (user) =>
+    user.sucursal?.nombre ??
+    branches.find((branch) => branch.id === user.sucursalId)?.nombre ??
+    'Sin sucursal'
 
   const handleSave = async (payload) => {
     if (editing === 'new') {
@@ -62,7 +75,7 @@ export default function UsersView({ users, isLoading, onRefresh }) {
         <div>
           <h2 className={ui.pageTitle}>Usuarios</h2>
           <p className={ui.pageSubtitle}>
-            Personas registradas en el sistema y datos básicos de contacto.
+            Personas habilitadas para acceder al sistema con su correo y contraseña.
           </p>
         </div>
         <div className={ui.headerActions}>
@@ -84,17 +97,34 @@ export default function UsersView({ users, isLoading, onRefresh }) {
             <input
               type="search"
               className={`${ui.input} ${ui.searchInput}`}
-              placeholder="Buscar usuario por nombre…"
+              placeholder="Buscar usuario por nombre o correo…"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               aria-label="Buscar usuarios"
             />
           </div>
-          {search ? (
+          <select
+            className={`${ui.select} ${ui.selectCompact}`}
+            value={branchFilter}
+            onChange={(event) => setBranchFilter(event.target.value)}
+            aria-label="Filtrar usuarios por sucursal"
+          >
+            <option value="">Todas las sucursales</option>
+            {branches.map((branch) => (
+              <option key={branch.id} value={branch.id}>
+                {branch.nombre}
+              </option>
+            ))}
+          </select>
+
+          {search || branchFilter ? (
             <button
               type="button"
               className={`${ui.btn} ${ui.btnGhost} ${ui.btnSm}`}
-              onClick={() => setSearch('')}
+              onClick={() => {
+                setSearch('')
+                setBranchFilter('')
+              }}
             >
               <Icon name="close" size={14} />
               Limpiar
@@ -120,7 +150,14 @@ export default function UsersView({ users, isLoading, onRefresh }) {
               : 'No hay usuarios que coincidan con la búsqueda.'
           }
           actionLabel={users.length === 0 ? 'Crear usuario' : 'Limpiar búsqueda'}
-          onAction={users.length === 0 ? () => setEditing('new') : () => setSearch('')}
+          onAction={
+            users.length === 0
+              ? () => setEditing('new')
+              : () => {
+                  setSearch('')
+                  setBranchFilter('')
+                }
+          }
         />
       ) : (
         <div className={ui.tableWrap}>
@@ -128,7 +165,8 @@ export default function UsersView({ users, isLoading, onRefresh }) {
             <thead>
               <tr>
                 <th>Usuario</th>
-                <th>Edad</th>
+                <th>Correo</th>
+                <th>Sucursal</th>
                 <th>Alta</th>
                 <th aria-label="Acciones" />
               </tr>
@@ -145,11 +183,8 @@ export default function UsersView({ users, isLoading, onRefresh }) {
                       </div>
                     </div>
                   </td>
-                  <td data-label="Edad">
-                    {user.edad !== null && user.edad !== undefined
-                      ? `${formatNumber(user.edad)} años`
-                      : '—'}
-                  </td>
+                  <td data-label="Correo">{user.correo || '—'}</td>
+                  <td data-label="Sucursal">{branchName(user)}</td>
                   <td data-label="Alta">{formatDate(user.createdAt)}</td>
                   <td data-label="Acciones" data-actions="true">
                     <div className={ui.actions}>
@@ -181,6 +216,7 @@ export default function UsersView({ users, isLoading, onRefresh }) {
       {editing ? (
         <UserForm
           user={editing === 'new' ? null : editing}
+          branches={branches}
           onClose={() => setEditing(null)}
           onSubmit={handleSave}
         />

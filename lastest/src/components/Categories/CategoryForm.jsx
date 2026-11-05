@@ -3,12 +3,13 @@ import Icon from '../Icon/Icon'
 import Modal from '../Modal/Modal'
 import ui from '../../styles/ui.module.css'
 
-export default function CategoryForm({ category, onClose, onSubmit }) {
+export default function CategoryForm({ category, branches, onClose, onSubmit }) {
   const formId = useId()
   const [values, setValues] = useState(() => ({
     nombre: category?.nombre ?? '',
     descripcion: category?.descripcion ?? '',
     activa: category?.activa ?? true,
+    sucursalId: category?.sucursalId ? String(category.sucursalId) : '',
   }))
   const [errors, setErrors] = useState({})
   const [formError, setFormError] = useState('')
@@ -22,8 +23,18 @@ export default function CategoryForm({ category, onClose, onSubmit }) {
   const handleSubmit = async (event) => {
     event.preventDefault()
 
+    const nextErrors = {}
+
     if (!values.nombre.trim()) {
-      setErrors({ nombre: 'Ingresa el nombre de la categoría.' })
+      nextErrors.nombre = 'Ingresa el nombre de la categoría.'
+    }
+
+    if (!values.sucursalId) {
+      nextErrors.sucursalId = 'Selecciona una sucursal.'
+    }
+
+    if (Object.keys(nextErrors).length > 0) {
+      setErrors(nextErrors)
       return
     }
 
@@ -36,6 +47,7 @@ export default function CategoryForm({ category, onClose, onSubmit }) {
         nombre: values.nombre.trim(),
         descripcion: values.descripcion.trim() || null,
         activa: values.activa,
+        sucursalId: Number(values.sucursalId),
       })
       success = true
     } catch (error) {
@@ -83,6 +95,28 @@ export default function CategoryForm({ category, onClose, onSubmit }) {
             <span>{formError}</span>
           </div>
         ) : null}
+
+        <div className={ui.field}>
+          <label className={ui.label} htmlFor={`${formId}-sucursal`}>
+            Sucursal *
+          </label>
+          <select
+            id={`${formId}-sucursal`}
+            className={`${ui.select} ${errors.sucursalId ? ui.inputError : ''}`}
+            value={values.sucursalId}
+            onChange={(event) => updateField('sucursalId', event.target.value)}
+          >
+            <option value="">Seleccionar sucursal</option>
+            {branches.map((branch) => (
+              <option key={branch.id} value={branch.id}>
+                {branch.nombre} · {branch.codigo}
+              </option>
+            ))}
+          </select>
+          {errors.sucursalId ? (
+            <span className={ui.fieldError}>{errors.sucursalId}</span>
+          ) : null}
+        </div>
 
         <div className={ui.field}>
           <label className={ui.label} htmlFor={`${formId}-nombre`}>

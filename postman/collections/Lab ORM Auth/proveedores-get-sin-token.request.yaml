@@ -1,0 +1,14 @@
+$kind: http-request
+name: Proveedores GET sin token
+method: GET
+url: '{{baseUrl}}/api/proveedores'
+order: 9000
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Listar proveedores sin token devuelve 401', function () {
+        pm.response.to.have.status(401)
+      })

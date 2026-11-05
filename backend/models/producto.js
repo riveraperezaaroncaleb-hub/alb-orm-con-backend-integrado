@@ -10,6 +10,30 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
+      Producto.hasMany(models.DetalleCompra, {
+        foreignKey: 'productoId',
+        as: 'detallesCompra',
+        onDelete: 'RESTRICT',
+        onUpdate: 'CASCADE'
+      });
+      Producto.hasMany(models.DetalleVenta, {
+        foreignKey: 'productoId',
+        as: 'detallesVenta',
+        onDelete: 'RESTRICT',
+        onUpdate: 'CASCADE'
+      });
+      Producto.hasMany(models.Lote, {
+        foreignKey: 'productoId',
+        as: 'lotes',
+        onDelete: 'RESTRICT',
+        onUpdate: 'CASCADE'
+      });
+      Producto.hasMany(models.DetalleMovimiento, {
+        foreignKey: 'productoId',
+        as: 'detallesMovimiento',
+        onDelete: 'RESTRICT',
+        onUpdate: 'CASCADE'
+      });
       Producto.belongsTo(models.Categoria, {
         foreignKey: 'categoriaId',
         as: 'categoria',
@@ -19,6 +43,18 @@ module.exports = (sequelize, DataTypes) => {
       Producto.belongsTo(models.Proveedor, {
         foreignKey: 'proveedorId',
         as: 'proveedor',
+        onDelete: 'RESTRICT',
+        onUpdate: 'CASCADE'
+      });
+      Producto.belongsTo(models.Sucursal, {
+        foreignKey: 'sucursalId',
+        as: 'sucursal',
+        onDelete: 'RESTRICT',
+        onUpdate: 'CASCADE'
+      });
+      Producto.belongsTo(models.Almacen, {
+        foreignKey: 'almacenId',
+        as: 'almacen',
         onDelete: 'RESTRICT',
         onUpdate: 'CASCADE'
       });
@@ -95,6 +131,26 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       references: {
         model: 'proveedores',
+        key: 'id'
+      },
+      onDelete: 'RESTRICT',
+      onUpdate: 'CASCADE'
+    },
+    sucursalId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'sucursales',
+        key: 'id'
+      },
+      onDelete: 'RESTRICT',
+      onUpdate: 'CASCADE'
+    },
+    almacenId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'almacenes',
         key: 'id'
       },
       onDelete: 'RESTRICT',

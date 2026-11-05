@@ -1,7 +1,10 @@
 const express = require('express');
 const productoController = require('../controladores/productoController');
+const authMiddleware = require('../middlewares/authMiddleware');
 
 const router = express.Router();
+
+router.use(authMiddleware);
 
 router.get('/', productoController.listar);
 router.get('/:id', productoController.obtener);

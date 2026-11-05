@@ -1,4 +1,8 @@
-const { Categoria } = require('../models');
+const { Categoria, Sucursal } = require('../models');
+
+const incluirRelaciones = [
+  { model: Sucursal, as: 'sucursal', attributes: ['id', 'nombre', 'codigo'] }
+];
 
 const manejarError = (res, error) => {
   if (error.name === 'SequelizeUniqueConstraintError') {
@@ -17,7 +21,8 @@ const manejarError = (res, error) => {
 
   if (error.name === 'SequelizeForeignKeyConstraintError') {
     return res.status(409).json({
-      mensaje: 'No se puede eliminar la categoría porque tiene productos asociados.'
+      mensaje:
+        'No se pudo completar la operación: la sucursal indicada no existe o la categoría tiene productos asociados.'
     });
   }
 
@@ -26,7 +31,18 @@ const manejarError = (res, error) => {
 
 const listar = async (req, res) => {
   try {
-    const categorias = await Categoria.findAll({ order: [['id', 'ASC']] });
+    const where = {};
+
+    if (req.query.sucursalId) {
+      where.sucursalId = req.query.sucursalId;
+    }
+
+    const categorias = await Categoria.findAll({
+      where,
+      include: incluirRelaciones,
+      order: [['id', 'ASC']]
+    });
+
     return res.json(categorias);
   } catch (error) {
     return manejarError(res, error);
@@ -35,7 +51,9 @@ const listar = async (req, res) => {
 
 const obtener = async (req, res) => {
   try {
-    const categoria = await Categoria.findByPk(req.params.id);
+    const categoria = await Categoria.findByPk(req.params.id, {
+      include: incluirRelaciones
+    });
 
     if (!categoria) {
       return res.status(404).json({ mensaje: 'Categoría no encontrada.' });
@@ -49,9 +67,14 @@ const obtener = async (req, res) => {
 
 const crear = async (req, res) => {
   try {
-    const { nombre, descripcion, activa } = req.body;
+    const { nombre, descripcion, activa, sucursalId } = req.body;
 
-    const categoria = await Categoria.create({ nombre, descripcion, activa });
+    const categoria = await Categoria.create({
+      nombre,
+      descripcion,
+      activa,
+      sucursalId
+    });
 
     return res.status(201).json(categoria);
   } catch (error) {
@@ -67,9 +90,9 @@ const actualizar = async (req, res) => {
       return res.status(404).json({ mensaje: 'Categoría no encontrada.' });
     }
 
-    const { nombre, descripcion, activa } = req.body;
+    const { nombre, descripcion, activa, sucursalId } = req.body;
 
-    await categoria.update({ nombre, descripcion, activa });
+    await categoria.update({ nombre, descripcion, activa, sucursalId });
 
     return res.json(categoria);
   } catch (error) {

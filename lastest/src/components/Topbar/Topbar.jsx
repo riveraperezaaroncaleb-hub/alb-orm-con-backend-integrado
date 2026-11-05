@@ -1,4 +1,5 @@
 import Icon from '../Icon/Icon'
+import { getInitials } from '../../utils/format'
 import styles from './Topbar.module.css'
 
 const dateFormatter = new Intl.DateTimeFormat('es-AR', {
@@ -9,7 +10,15 @@ const dateFormatter = new Intl.DateTimeFormat('es-AR', {
 
 const todayLabel = dateFormatter.format(new Date())
 
-export default function Topbar({ title, subtitle, refreshing, onRefresh, onOpenMenu }) {
+export default function Topbar({
+  title,
+  subtitle,
+  refreshing,
+  onRefresh,
+  onOpenMenu,
+  user,
+  onLogout,
+}) {
   return (
     <header className={styles.topbar}>
       <div className={styles.left}>
@@ -45,6 +54,27 @@ export default function Topbar({ title, subtitle, refreshing, onRefresh, onOpenM
           />
           <span>{refreshing ? 'Actualizando…' : 'Actualizar'}</span>
         </button>
+
+        <div className={styles.account}>
+          <span className={styles.avatar}>{getInitials(user?.nombre)}</span>
+          <div className={styles.accountInfo}>
+            <span className={styles.accountName}>{user?.nombre ?? 'Usuario'}</span>
+            <span className={styles.accountEmail}>{user?.correo ?? ''}</span>
+            <span className={styles.accountBranch}>
+              {user?.sucursal?.nombre ?? 'Sin sucursal'}
+            </span>
+          </div>
+          <button
+            type="button"
+            className={styles.logout}
+            onClick={onLogout}
+            aria-label="Cerrar sesión"
+            title="Cerrar sesión"
+          >
+            <Icon name="logout" size={16} />
+            <span>Salir</span>
+          </button>
+        </div>
       </div>
     </header>
   )

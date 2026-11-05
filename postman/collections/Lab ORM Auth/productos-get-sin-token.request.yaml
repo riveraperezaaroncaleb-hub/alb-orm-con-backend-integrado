@@ -1,0 +1,14 @@
+$kind: http-request
+name: Productos GET sin token
+method: GET
+url: '{{baseUrl}}/api/productos'
+order: 10000
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Listar productos sin token devuelve 401', function () {
+        pm.response.to.have.status(401)
+      })

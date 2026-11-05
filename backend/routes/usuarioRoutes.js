@@ -1,7 +1,10 @@
 const express = require('express');
 const usuarioController = require('../controladores/usuarioController');
+const authMiddleware = require('../middlewares/authMiddleware');
 
 const router = express.Router();
+
+router.use(authMiddleware);
 
 router.get('/', usuarioController.listar);
 router.get('/:id', usuarioController.obtener);

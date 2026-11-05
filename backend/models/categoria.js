@@ -14,6 +14,12 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'categoriaId',
         as: 'productos'
       });
+      Categoria.belongsTo(models.Sucursal, {
+        foreignKey: 'sucursalId',
+        as: 'sucursal',
+        onDelete: 'RESTRICT',
+        onUpdate: 'CASCADE'
+      });
     }
   }
   Categoria.init({
@@ -30,6 +36,16 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: true
+    },
+    sucursalId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'sucursales',
+        key: 'id'
+      },
+      onDelete: 'RESTRICT',
+      onUpdate: 'CASCADE'
     }
   }, {
     sequelize,
