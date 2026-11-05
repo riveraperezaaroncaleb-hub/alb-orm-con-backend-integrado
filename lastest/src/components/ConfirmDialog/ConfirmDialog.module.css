@@ -1,0 +1,60 @@
+.content {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+}
+
+.icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 2.7rem;
+  height: 2.7rem;
+  border-radius: 12px;
+  background: rgba(255, 93, 115, 0.12);
+  color: var(--danger);
+}
+
+.message {
+  padding-top: 0.3rem;
+  color: var(--text-soft);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.cancel {
+  padding: 0.62rem 0.95rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cancel:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-3);
+}
+
+.confirm {
+  padding: 0.62rem 0.95rem;
+  border: 1px solid rgba(255, 93, 115, 0.45);
+  border-radius: 10px;
+  background: rgba(255, 93, 115, 0.16);
+  color: #ffb3bd;
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.confirm:hover {
+  background: rgba(255, 93, 115, 0.24);
+}
+
+.cancel:disabled,
+.confirm:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

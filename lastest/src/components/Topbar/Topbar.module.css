@@ -1,0 +1,119 @@
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.9rem;
+  padding: 1rem clamp(1rem, 3vw, 2rem);
+  border-bottom: 1px solid var(--border);
+  background: rgba(6, 10, 19, 0.72);
+  backdrop-filter: blur(14px);
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  min-width: 0;
+}
+
+.menuButton {
+  display: none;
+  place-items: center;
+  width: 2.3rem;
+  height: 2.3rem;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface-2);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.subtitle {
+  margin-top: 0.1rem;
+  color: var(--text-muted);
+  font-size: 0.76rem;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.date {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.refresh {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease;
+}
+
+.refresh:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-3);
+}
+
+.refresh:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.spinning {
+  animation: spin 0.9s linear infinite;
+}
+
+@media (max-width: 1023px) {
+  .menuButton {
+    display: grid;
+  }
+}
+
+@media (max-width: 720px) {
+  .date {
+    display: none;
+  }
+
+  .subtitle {
+    display: none;
+  }
+
+  .title {
+    font-size: 0.98rem;
+    white-space: normal;
+  }
+}
