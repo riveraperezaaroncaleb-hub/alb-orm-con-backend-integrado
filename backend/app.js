@@ -1,6 +1,7 @@
 const express = require('express');
 
 const almacenRoutes = require('./routes/almacenRoutes');
+const assistantRoutes = require('./routes/assistantRoutes');
 const authRoutes = require('./routes/authRoutes');
 const categoriaRoutes = require('./routes/categoriaRoutes');
 const clienteRoutes = require('./routes/clienteRoutes');
@@ -28,6 +29,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/almacenes', almacenRoutes);
+app.use('/api/asistente', assistantRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/categorias', categoriaRoutes);
 app.use('/api/clientes', clienteRoutes);

@@ -72,4 +72,14 @@ export const api = {
   profile() {
     return request({ url: '/auth/perfil', method: 'GET' })
   },
+  assistantStatus() {
+    return request({ url: '/asistente/estado', method: 'GET' })
+  },
+  assistantChat(messages) {
+    return request({
+      url: '/asistente/chat',
+      method: 'POST',
+      data: { messages },
+    })
+  },
 }

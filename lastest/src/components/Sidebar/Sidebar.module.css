@@ -74,6 +74,16 @@
   flex-direction: column;
   gap: 0.25rem;
   margin-top: 0.6rem;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.navGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding-bottom: 0.7rem;
 }
 
 .navItem {
@@ -123,6 +133,10 @@
 
 .navLabel {
   flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .count {

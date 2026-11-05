@@ -1,0 +1,190 @@
+.card {
+  padding: clamp(1rem, 2.5vw, 1.5rem);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.cardHeading {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+}
+
+.cardIcon {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 12px;
+  background: rgba(47, 227, 168, 0.12);
+  color: var(--accent);
+}
+
+.cardTitle {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.cardDescription {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.fontOptions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  border: 0;
+  padding: 0;
+}
+
+.fontOption {
+  display: flex;
+  min-height: 7rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-2);
+  color: var(--text-soft);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.fontOption input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.fontOption:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.fontOption.selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+  color: var(--text);
+}
+
+.fontSample {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.fontSample[data-size='normal'] {
+  font-size: 1.35rem;
+}
+
+.fontSample[data-size='large'] {
+  font-size: 1.65rem;
+}
+
+.fontSample[data-size='larger'] {
+  font-size: 2rem;
+}
+
+.switchList {
+  margin-top: 0.65rem;
+}
+
+.switchRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 4.5rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+
+.switchRow:last-child {
+  border-bottom: 0;
+}
+
+.switchCopy {
+  display: flex;
+  flex-direction: column;
+}
+
+.switchTitle {
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.switchInput {
+  position: relative;
+  flex: 0 0 auto;
+  width: 2.8rem;
+  height: 1.55rem;
+  margin: 0;
+  appearance: none;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: var(--surface-3);
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+
+.switchInput::before {
+  content: '';
+  position: absolute;
+  top: 0.16rem;
+  left: 0.16rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 50%;
+  background: var(--text-soft);
+  transition: transform 0.18s ease, background 0.18s ease;
+}
+
+.switchInput:checked {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.switchInput:checked::before {
+  transform: translateX(1.25rem);
+  background: #04140e;
+}
+
+.switchInput:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.note {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.note svg {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 520px) {
+  .fontOptions {
+    gap: 0.45rem;
+  }
+
+  .fontOption {
+    min-height: 6rem;
+    font-size: 0.72rem;
+  }
+}
